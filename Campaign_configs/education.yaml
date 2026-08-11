@@ -1,0 +1,365 @@
+campaign_name: education
+description: 'Project Saksham education skill-census calls. Extracts the candidate''s degree, specialisation/subject, skill certificates, current employer, work interest, and other candidate facts from Hindi/Marathi/English call transcripts + summaries.
+
+  '
+model:
+  ollama_model: gemma3:4b
+  ollama_url: http://127.0.0.1:11434/api/chat
+  temperature: 0
+  timeout_seconds: 120
+input_columns:
+  transcript_candidates:
+  - transcript
+  - transcription
+  - call transcript
+  - conversation
+  - dialogue
+  - call text
+  summary_candidates:
+  - summary
+  - call summary
+  - ai summary
+  degree_candidates:
+  - degree
+  cert_flag_candidates:
+  - any skill certificate
+  - skill certificate
+  cert_name_candidates:
+  - name of skill certificate
+  - certificate name
+gemma_system_prompt: 'You are a precise data extraction analyst. Output valid JSON only.
+
+  '
+gemma_output_keys:
+- degree
+- specialization
+- interest
+- experience
+- refined_summary
+gemma_prompt: "You are an expert information extraction system.\n\nYour task is to extract ONLY facts that were explicitly confirmed by the CANDIDATE.\n\n=====================================================\nMOST IMPORTANT RULE\n=====================================================\n\nThe assistant often reads information already stored in the database.\nTHIS INFORMATION IS NOT VERIFIED.\nAnything spoken ONLY by the assistant is NOT evidence.\nThe candidate is the ONLY source of truth.\n\nThe candidate must explicitly:\n• state the information\nOR\n• confirm it\nOR\n• correct it\nOtherwise output \"Not Mentioned\".\n\nNever guess. Never infer. Never copy assistant assumptions.\n\n=====================================================\nExamples\n=====================================================\n\nExample 1\nAssistant: Our records show your degree is B.Com.\nUser: Hello... (Call disconnected)\nOutput: {{ \"degree\": \"Not Mentioned\" }}\n\nExample 2\nAssistant: Our records show your degree\
+  \ is B.Com.\nUser: Yes.\nOutput: {{ \"degree\": \"B.Com\" }}\n\nExample 3\nAssistant: Our records show your degree is B.Com.\nUser: No. My degree is B.Sc.\nOutput: {{ \"degree\": \"B.Sc\" }}\n\nExample 4\nAssistant: Do you have experience?\nUser: Fresher.\nOutput: {{ \"experience\": \"Fresher\" }}\n\n=====================================================\nTranscript:\n=====================================================\n{transcript}\n\n=====================================================\nSummary:\n=====================================================\n{summary}\n\n=====================================================\nReturn a JSON object with these keys:\ndegree, specialization, interest, experience, refined_summary\n=====================================================\n\nRules:\n- Transcript is the ONLY source of evidence for Degree.\n- Summary is context ONLY and must NEVER be used as evidence for Degree.\n- A degree mentioned only by the assistant MUST NOT be extracted.\n- A degree\
+  \ mentioned only in the Summary MUST NOT be extracted.\n- Candidate silence MUST NOT be treated as confirmation.\n- \"Yes\", \"हो\", \"हाँ\", \"होय\", etc. confirm a degree ONLY if they occur AFTER the\n  assistant explicitly states that degree.\n- A confirmation that occurred BEFORE the assistant mentioned the degree does NOT\n  confirm that degree.\n- If the candidate explicitly states a different degree, use the candidate's degree.\n- If the candidate says no/rejects the assistant's degree but does not provide\n  another degree, return \"Not Mentioned\".\n- If the candidate never confirms, states, or corrects the degree, return \"Not Mentioned\".\n- Never infer a degree from the Summary.\n- Never infer a degree from the assistant's statement.\n\nRules for \"refined_summary\":\n- Rewrite the Summary into clean, readable prose describing ONLY the candidate.\n- REMOVE all bot/assistant narration (e.g. \"the assistant greeted\", \"Savita from\n  Project Saksham\", \"the call was initiated\"\
+  , identity verification, \"profile\n  update needed\", \"further contact required\", greetings).\n- REMOVE process/status notes and next-step notes.\n- KEEP only meaningful facts about the candidate: their education, work, experience,\n  interests, situation, and what they said.\n- Do NOT invent anything. Use only what is actually in the Summary.\n- If the Summary has no meaningful candidate information (voicemail, no response,\n  only bot narration), return an empty string \"\".\n- Keep it concise (1-3 sentences).\n\n- Return valid JSON only.\n- No explanation.\n- No markdown.\n"
+field_mapping:
+  degree: Degree
+  specialization: Specialisation / Subjects
+  any_skill_certificate: Any Skill Certificate
+  name_of_skill_certificate: Name Of Skill Certificate
+  current_employer: Current Employer Name (Real Time)
+  interest: Current Interest in Jobs / Self Employment / Skills
+  additional_information: Additional Information based on AI Calls
+output_column_order:
+- ID
+- AGENT ID
+- CALLING NUMBER
+- PROVIDER NUMBER
+- STATUS
+- TOTAL DURATION
+- IS ESCALATED
+- IS HOT DEAL
+- DETECTED EMOTION
+- TRANSCRIPT
+- SUMMARY
+- Degree
+- Specialisation / Subjects
+- Any Skill Certificate
+- Name Of Skill Certificate
+- Current Employer Name (Real Time)
+- Current Interest in Jobs / Self Employment / Skills
+- Additional Information based on AI Calls
+- Degree Confidence
+- Extraction Confidence
+- COMMENTS
+- FILE PATH
+- CALL STATUS
+- DISPOSITION
+- DISPOSITION INTENT
+- Total Duration.1
+- Date
+- Time
+- Call Type
+- Next Step Note
+- Follow Up Required
+- Follow Up Datetime
+- Campaign Name
+degree_keywords:
+  PhD:
+  - ph.d
+  - phd
+  - doctorate
+  MBA:
+  - mba
+  - master of business
+  - एमबीए
+  MCom:
+  - m.com
+  - mcom
+  - master of commerce
+  - एमकॉम
+  MSc:
+  - m.sc
+  - msc
+  - master of science
+  - एमएससी
+  MA:
+  - m.a
+  - master of arts
+  - एमए
+  MCA:
+  - mca
+  - master of computer
+  - एमसीए
+  MTech:
+  - m.tech
+  - mtech
+  - master of technology
+  - एमटेक
+  BE/BTech:
+  - b.tech
+  - b tech
+  - btech
+  - b.e
+  - bachelor of engineering
+  - bachelor of technology
+  - engineering degree
+  - engineering
+  - बीटेक
+  - बीई
+  - बी.टेक
+  BCom:
+  - b.com
+  - b com
+  - bcom
+  - bachelor of commerce
+  - बीकॉम
+  - बी.कॉम
+  - बी कॉम
+  BSc:
+  - b.sc
+  - bsc
+  - bachelor of science
+  - बीएससी
+  - बी.एससी
+  BCA:
+  - bca
+  - bachelor of computer
+  - बीसीए
+  BBA:
+  - bba
+  - bachelor of business
+  - बीबीए
+  BA:
+  - b.a
+  - b a
+  - bachelor of arts
+  - arts degree
+  - arts
+  - बीए
+  - बी.ए
+  Diploma:
+  - diploma
+  - polytechnic
+  - डिप्लोमा
+  - पॉलिटेक्निक
+  ITI:
+  - iti
+  - i.t.i
+  - industrial training
+  - आईटीआई
+  12th:
+  - 12th
+  - hsc
+  - twelfth
+  - higher secondary
+  - बारहवीं
+  10th:
+  - 10th
+  - ssc
+  - tenth
+  - दसवीं
+  Graduate:
+  - graduate
+  - graduation
+  - bachelor
+  - ग्रेजुएट
+  - स्नातक
+specialization_keywords:
+  Artificial Intelligence & Data Science:
+  - artificial intelligence and data science
+  - ai and data science
+  - data science
+  - artificial intelligence
+  - machine learning
+  Computer Science:
+  - computer science
+  - computer engineering
+  - cse
+  Accounting/Finance:
+  - accounting
+  - accounts
+  - finance
+  - financial
+  - taxation
+  Commerce:
+  - commerce
+  Management:
+  - management
+  - general mba
+  Marketing:
+  - marketing
+  Mechanical:
+  - mechanical
+  - fitter
+  - turner
+  Electrical:
+  - electrical
+  - electrician
+  - wireman
+  Civil:
+  - civil
+  Electronics:
+  - electronics
+  Nursing:
+  - nursing
+  - gnm
+  - anm
+  Arts:
+  - arts
+  Science:
+  - science
+interest_field_keywords:
+  Teaching:
+  - teaching
+  - teacher
+  IT/Software:
+  - it field
+  - software
+  - information technology
+  Banking/Finance:
+  - banking
+  - finance
+  - accounting
+  - accounts
+  Healthcare:
+  - healthcare
+  - hospital
+  - medical
+  - nursing
+  Management:
+  - management
+  - product management
+  - hr
+  Marketing/Sales:
+  - marketing
+  - sales
+  Business/Self-employment:
+  - business
+  - self employment
+  - self-employment
+  Government job:
+  - government job
+  - govt job
+  - sarkari
+  Engineering:
+  - engineering
+  - mechanical
+  - electrical
+  - civil
+  Retail:
+  - retail
+  - shop
+  - store
+certificate_keywords:
+  Tally:
+  - tally
+  MS-CIT:
+  - mscit
+  - ms-cit
+  - ms cit
+  CCC:
+  - 'ccc '
+  Typing:
+  - typing
+  Computer Course:
+  - computer course
+  - basic computer
+  - computer basic
+  Beauty Parlour:
+  - beauty parlour
+  - beautician
+  - parlour course
+  Tailoring:
+  - tailoring
+  - sewing
+  - silai
+  Digital Marketing:
+  - digital marketing
+  Driving:
+  - driving licence
+  - driving license
+  - driving course
+  Spoken English:
+  - spoken english
+  - english speaking
+known_employers:
+- reliance
+- tcs
+- infosys
+- wipro
+- zomato
+- swiggy
+- amazon
+- flipkart
+- hdfc
+- icici
+- sbi
+- axis
+- vodafone
+- airtel
+- jio
+- bigbasket
+- ola
+- uber
+- dmart
+- tech mahindra
+- cognizant
+- accenture
+- l&t
+- mahindra
+- bajaj
+- tata
+- capgemini
+- hcl
+- genpact
+non_employer_words:
+- artificial intelligence
+- data science
+- machine learning
+- computer science
+- information technology
+- software
+- banking
+- finance
+- healthcare
+- retail
+- sales
+- marketing
+- management
+- commerce
+- science
+- arts
+- engineering
+- mechanical
+- electrical
+- civil
+- electronics
+- nursing
+- accounting
+guardrails:
+  min_content_chars: 15
+  placeholder_texts:
+  - no summary available
+  - not available
+  - n/a
+  - na
+  - none
